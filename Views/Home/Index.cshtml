@@ -1,0 +1,83 @@
+﻿@using Daraz101_Services
+@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<!-- Page-specific styles -->
+<style>
+    /* Background color only for this page */
+    /* body {
+        background-color: #2c2f33; /* dark gray */
+    } */
+
+    /* Style carousel arrows to be more visible */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.6); /* semi-transparent black circle */
+        border-radius: 50%;
+        filter: brightness(100%) invert(100%); /* white arrow */
+        width: 40px;
+        height: 40px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6 text-center text-md-start">
+            <h1 class="display-4 fw-bold">Welcome to <span class="text-primary">Daraz101</span></h1>
+            <p class="lead">Your one-stop shop for amazing deals and fast delivery.</p>
+            <a class="btn btn-primary btn-lg" asp-controller="Product" asp-action="Index">Shop Now</a>
+        </div>
+        <div class="col-md-6 d-none d-md-block">
+            <img src="https://images.all-free-download.com/images/graphicwebp/ecommerce_website_banner_template_shoppers_sketch_6920121.webp" alt="Shopping banner" class="img-fluid rounded shadow" />
+        </div>
+    </div>
+
+    <!-- Featured Products Slider -->
+    @if (Model.FeaturedProducts != null && Model.FeaturedProducts.Any())
+    {
+        <h3 class="text-center mb-4 text-white">Featured Products</h3>
+        <div id="featuredCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                @for (int i = 0; i < Model.FeaturedProducts.Count; i++)
+                {
+                    var product = Model.FeaturedProducts[i];
+                    <div class="carousel-item @(i == 0 ? "active" : "") text-center">
+                        <img src="@product.ImageUrl" class="d-block mx-auto img-fluid" style="max-height: 400px;" alt="@product.Name" />
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>@product.Name</h5>
+                            <p class="bg-dark bg-opacity-50 p-2 rounded">$@product.Price</p>
+                            <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-light">View Details</a>
+                        </div>
+                    </div>
+                }
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#featuredCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#featuredCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    }
+
+    <!-- All Products Grid -->
+    <h3 class="text-center mb-4 text-white">All Products</h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var product in Model.AllProducts)
+        {
+            <div class="col">
+                <div class="card h-100">
+                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text text-muted">$@product.Price</p>
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,49 @@
+﻿@model Daraz101_Services.OrderDTO
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="container py-5">
+    <div class="text-center">
+        <h2 class="text-success">🎉 Order Confirmed!</h2>
+        <p class="lead">Thank you for your purchase.</p>
+        <p>Order ID: <strong>#@Model.Id</strong></p>
+        <p>Status: <span class="badge bg-info text-dark">@Model.Status</span></p>
+        <p>Placed on: @Model.OrderDate.ToLocalTime().ToString("f")</p>
+
+        <h4 class="mt-4">Delivery Address</h4>
+        <p>@Model.DeliveryAddress</p>
+
+        <h5 class="mt-4">Order Summary</h5>
+        <table class="table table-bordered mt-2">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.UnitPrice.ToString("C")</td>
+                        <td>@item.Total.ToString("C")</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Total</th>
+                    <th>@Model.Items.Sum(i => i.Total).ToString("C")</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <a class="btn btn-primary mt-3" href="@Url.Action("Index", "Home")">Continue Shopping</a>
+        @* <a class="btn btn-outline-secondary mt-3" href="@Url.Action("OrderHistory", "Order")">View My Orders</a> *@
+    </div>
+</div>

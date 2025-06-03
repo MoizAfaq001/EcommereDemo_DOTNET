@@ -1,0 +1,94 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+/* Hide the default browser checkbox */
+.custom-checkbox {
+    /* Hide the native checkbox, but keep it accessible for screen readers */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-block; /* Essential for sizing and positioning pseudo-elements */
+    width: 20px; /* Adjust size as needed */
+    height: 20px; /* Adjust size as needed */
+    border: 1px solid #ccc; /* Default gray border */
+    border-radius: 3px; /* Slightly rounded corners */
+    cursor: pointer;
+    vertical-align: middle; /* Align with text */
+    position: relative; /* For positioning the checkmark */
+    margin-right: 5px; /* Space between checkbox and label text */
+}
+
+    /* Style the custom checkbox when unchecked */
+    .custom-checkbox:not(:checked) {
+        background-color: #fff; /* White background when unchecked */
+        border-color: #ccc; /* Default border color */
+    }
+
+    /* Style the custom checkbox when checked */
+    .custom-checkbox:checked {
+        background-color: #000; /* Black background when checked (the "highlight") */
+        border-color: #000; /* Black border when checked */
+    }
+
+    /* Create the checkmark inside the checkbox */
+    .custom-checkbox::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0); /* Hide checkmark by default */
+        width: 10px; /* Size of the checkmark */
+        height: 10px; /* Size of the checkmark */
+        background-color: white; /* Color of the checkmark */
+        border-radius: 2px; /* Slightly rounded checkmark */
+        opacity: 0;
+        transition: transform 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    }
+
+    /* Show the checkmark when the checkbox is checked */
+    .custom-checkbox:checked::before {
+        transform: translate(-50%, -50%) scale(1); /* Show checkmark */
+        opacity: 1;
+    }
+
+    /* Change outline to black on focus */
+    .custom-checkbox:focus {
+        outline: 2px solid black; /* Black outline on focus */
+        outline-offset: 2px; /* Space between the checkbox and the outline */
+    }
+
+    /* Style for hover state */
+    .custom-checkbox:hover:not(:checked) {
+        border-color: #888; /* Slightly darker border on hover when unchecked */
+    }
+
+    .custom-checkbox:hover:checked {
+        background-color: #333; /* Slightly darker background on hover when checked */
+        border-color: #333; /* Slightly darker border on hover when checked */
+    }
+
+    /* Improve styling for the label when the checkbox is checked */
+    .custom-checkbox:checked + .form-label {
+        color: #000; /* Change label color to black when checked */
+        font-weight: bold; /* Make label bold when checked */
+    }

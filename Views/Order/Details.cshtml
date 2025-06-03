@@ -1,0 +1,34 @@
+﻿@using Daraz101_Services
+@model OrderDTO
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<h2>Order Details - #@Model.Id</h2>
+<p><strong>Date:</strong> @Model.OrderDate.ToShortDateString()</p>
+<p><strong>Delivery Address:</strong> @Model.DeliveryAddress</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.ProductName</td>
+                <td>@item.Quantity</td>
+                <td>$@item.UnitPrice</td>
+                <td>$@(item.Quantity* item.UnitPrice)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h4 class="text-end">Total Paid: <strong>$@Model.OrderTotal</strong></h4>
