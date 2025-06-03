@@ -1,0 +1,85 @@
+﻿@model List<Daraz101_Services.CartItemDTO>
+
+@{
+    ViewData["Title"] = "Checkout";
+    decimal grandTotal = Model.Sum(item => item.Price * item.Quantity);
+}
+
+<h2 class="mb-4">Checkout</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <table class="table table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("C")</td>
+                        <td>@(item.Price* item.Quantity)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end fw-bold fs-5 mt-3">
+            Grand Total: @grandTotal.ToString("C")
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <form id="checkoutForm" method="post" asp-action="PlaceOrder" asp-controller="Order">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label for="fullAddress" class="form-label">Shipping Address</label>
+                <textarea class="form-control" id="fullAddress" name="fullAddress" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success w-100">Place Order</button>
+        </form>
+        <div id="checkoutMessage" class="mt-3"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#checkoutForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const address = $('#fullAddress').val();
+                const $message = $('#checkoutMessage');
+
+                $.ajax({
+                    url: '@Url.Action("PlaceOrder", "Order")',
+                    method: 'POST',
+                    data: {
+                        fullAddress: address,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (data) {
+                        if (data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else if (data.error) {
+                            $message.html(`<div class="alert alert-danger">${data.error}</div>`);
+                        }
+                    },
+                    error: function () {
+                        $message.html(`<div class="alert alert-danger">Order failed. Please try again.</div>`);
+                    }
+                });
+            });
+        });
+    </script>
+}

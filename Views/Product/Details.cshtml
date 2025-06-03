@@ -1,0 +1,28 @@
+﻿@using Daraz101_Services
+@model ProductDTO
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<h2>@Model.Name</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <img src="@Model.ImageUrl" class="img-fluid" alt="@Model.Name" />
+    </div>
+    <div class="col-md-6">
+        <h4>@Model.Name</h4>
+        <p>@Model.Description</p>
+        <h5 class="text-primary">$@Model.Price</h5>
+
+        <form asp-controller="Cart" asp-action="Add" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.Id" />
+            <div class="mb-3">
+                <label for="quantity" class="form-label">Quantity</label>
+                <input type="number" name="quantity" value="1" class="form-control" min="1" />
+            </div>
+            <button type="submit" class="btn btn-success">Add to Cart</button>
+        </form>
+    </div>
+</div>

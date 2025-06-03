@@ -1,0 +1,95 @@
+﻿@using Daraz101_Services
+@model IEnumerable<ProductDTO>
+
+@{
+    ViewData["Title"] = "Products";
+    var searchTerm = Context.Request.Query["searchTerm"].ToString();
+}
+
+<h2>All Products</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-primary">Add New Product</a>
+    </div>
+}
+
+<form method="get" asp-action="Index" class="mb-4" id="searchForm">
+    <div class="input-group">
+        <input type="text" id="searchInput" name="searchTerm" class="form-control" placeholder="Search products..."
+               value="@searchTerm" autocomplete="off" />
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+    </div>
+</form>
+
+<div id="productsContainer">
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning text-center" id="noResultsMsg">
+            No products found for "@searchTerm".
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="productGrid">
+            @foreach (var product in Model)
+            {
+                <div class="col product-item">
+                    <div class="card h-100">
+                        <img src="@(string.IsNullOrWhiteSpace(product.ImageUrl) ? "/images/no-image.png" : product.ImageUrl)"
+                             class="card-img-top" alt="@product.Name" />
+                        <div class="card-body">
+                            <h5 class="card-title">@product.Name</h5>
+                            <p class="card-text">@product.Description</p>
+                            <p class="fw-bold text-primary">$@product.Price</p>
+                            <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-outline-primary">View Details</a>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="mt-2">
+                                    <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-warning me-2">Edit</a>
+                                    <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-danger">Delete</a>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const searchInput = document.getElementById('searchInput');
+            const productGrid = document.getElementById('productGrid');
+            const noResultsMsg = document.getElementById('noResultsMsg');
+
+            if (!searchInput || !productGrid) return;
+
+            const productItems = productGrid.querySelectorAll('.product-item');
+
+            function filterProducts() {
+                const filter = searchInput.value.toLowerCase().trim();
+                let visibleCount = 0;
+
+                productItems.forEach(item => {
+                    const title = item.querySelector('.card-title').textContent.toLowerCase();
+                    const description = item.querySelector('.card-text').textContent.toLowerCase();
+
+                    const visible = title.includes(filter) || description.includes(filter);
+                    item.style.display = visible ? '' : 'none';
+                    if (visible) visibleCount++;
+                });
+
+                if (noResultsMsg) {
+                    noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            }
+
+            searchInput.addEventListener('input', filterProducts);
+        })();
+    </script>
+}
