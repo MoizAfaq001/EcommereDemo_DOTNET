@@ -2,10 +2,11 @@ using AutoMapper;
 using Daraz101_Data;
 using Daraz101_Services;
 using Daraz101_Services.Mapping;
-using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore; 
+using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 public class Program
 {
@@ -17,28 +18,23 @@ public class Program
         // 1. Configure Services
         // -----------------------------------
 
-        // Add DbContext
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptions => sqlServerOptions.CommandTimeout(30)));
 
-        // Add Identity
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
-        // Add AutoMapper
         builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-        // Add MVC with Anti-Forgery protection
         builder.Services.AddControllersWithViews(options =>
         {
             options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
         });
 
-        // Add support for API controllers (optional if using APIs)
         builder.Services.AddControllers();
 
-        // Add session support
         builder.Services.AddSession(options =>
         {
             options.IdleTimeout = TimeSpan.FromMinutes(20);
@@ -46,22 +42,18 @@ public class Program
             options.Cookie.IsEssential = true;
         });
 
-        // Add Database Developer Page Exception Filter
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-        // Register Application Services
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<ICartService, CartService>();
         builder.Services.AddScoped<IOrderService, OrderService>();
         builder.Services.AddScoped<IUserProfileService, UserService>();
 
-        // Configure Application Cookie
         builder.Services.ConfigureApplicationCookie(options =>
         {
             options.LoginPath = "/Account/Login";
             options.AccessDeniedPath = "/Account/AccessDenied";
 
-            // For API compatibility
             options.Events.OnRedirectToLogin = context =>
             {
                 context.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -90,12 +82,29 @@ public class Program
 
         app.UseRouting();
 
-        app.UseSession();          
-        app.UseAuthentication();   
+        // ---- Infinite Loop Watchdog Middleware ----
+        app.Use(async (context, next) =>
+        {
+            var cts = new CancellationTokenSource(TimeSpan.FromDays(30));
+            var task = next();
+
+            if (await Task.WhenAny(task, Task.Delay(Timeout.Infinite, cts.Token)) != task)
+            {
+                var trace = Environment.StackTrace;
+
+                var logPath = Path.Combine(AppContext.BaseDirectory, "timeout_stacktrace.log");
+                await File.AppendAllTextAsync(logPath, $"[{DateTime.UtcNow}] Timeout\n{trace}\n\n");
+
+                throw new TimeoutException("Request exceeded 30s timeout. Stack trace written to timeout_stacktrace.log");
+            }
+        });
+
+
+        app.UseSession();
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        // Map controllers and routes
-        app.MapControllers(); 
+        app.MapControllers();
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
