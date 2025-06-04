@@ -72,12 +72,6 @@ namespace Daraz101.Controllers
             return View(model);
         }
 
-        // GET: /Account/Login
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
 
         // POST: /Account/Login
         [HttpPost]

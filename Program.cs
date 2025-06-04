@@ -267,7 +267,6 @@ public class Program
         app.UseAuthentication();   
         app.UseAuthorization();
 
-        // Map controllers and routes
         app.MapControllers(); 
         app.MapControllerRoute(
             name: "default",
